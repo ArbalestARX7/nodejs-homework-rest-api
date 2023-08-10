@@ -6,7 +6,7 @@ const {
   removeContact,
 } = require("../models/contacts");
 const HttpError = require("../helpers/HttpError");
-const contactSchema = require("../schemas/contactSchema");
+const { addSchema, updateSchema } = require("../schemas/contactSchema");
 const ctrlWrapper = require("../helpers/ctrlWrapper");
 
 const getAll = async (req, res) => {
@@ -23,7 +23,7 @@ const getById = async (req, res) => {
 };
 
 const add = async (req, res) => {
-  const { error } = contactSchema.validate(req.body);
+  const { error } = addSchema.validate(req.body);
 
   if (error) {
     throw HttpError(400, error.message);
@@ -46,7 +46,7 @@ const deleteById = async (req, res) => {
 };
 
 const updateById = async (req, res) => {
-  const { error } = contactSchema.validate(req.body);
+  const { error } = updateSchema.validate(req.body);
 
   if (error) {
     throw HttpError(400, error.message);
