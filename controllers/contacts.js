@@ -1,11 +1,13 @@
 const { Contact } = require("../models/contacts");
 const { HttpError, ctrlWrapper } = require("../helpers");
+const ownerChek = require("../helpers/ownerChek");
 
 const getAll = async (req, res) => {
   const { _id: owner } = req.user;
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 10, favorite } = req.query;
   const skip = (page - 1) * limit;
-  const contacts = await Contact.find({ owner }, "-createdAt -updatedAt", {
+  const filter = favorite ? { owner, favorite } : { owner };
+  const contacts = await Contact.find(filter, "-createdAt -updatedAt", {
     skip,
     limit,
   }).populate("owner", "name email");
@@ -14,9 +16,10 @@ const getAll = async (req, res) => {
 };
 
 const getById = async (req, res) => {
-  const { contactId } = req.params;
-
-  const contact = await Contact.findById(contactId, "-createdAt -updatedAt");
+  const contact = await Contact.findOne(
+    ownerChek(req),
+    "-createdAt -updatedAt"
+  );
 
   res.json(contact);
 };
@@ -29,19 +32,17 @@ const add = async (req, res) => {
 };
 
 const deleteById = async (req, res) => {
-  const { contactId } = req.params;
-  const result = await Contact.findByIdAndRemove(contactId);
+  const result = await Contact.findOneAndRemove(ownerChek(req));
 
   if (!result) {
-    throw HttpError(404, "Not Found");
+    throw HttpError(404);
   }
 
   res.json({ message: "Delete Success" });
 };
 
 const updateById = async (req, res) => {
-  const { contactId } = req.params;
-  const result = await Contact.findByIdAndUpdate(contactId, req.body, {
+  const result = await Contact.findOneAndUpdate(ownerChek(req), req.body, {
     new: true,
   });
 
@@ -49,8 +50,7 @@ const updateById = async (req, res) => {
 };
 
 const updateFavoriteById = async (req, res) => {
-  const { contactId } = req.params;
-  const result = await Contact.findByIdAndUpdate(contactId, req.body, {
+  const result = await Contact.findOneAndUpdate(ownerChek(req), req.body, {
     new: true,
   });
 
