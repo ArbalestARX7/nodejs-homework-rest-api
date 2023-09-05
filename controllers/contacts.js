@@ -3,13 +3,13 @@ const { HttpError, ctrlWrapper, ownerChek } = require("../helpers");
 
 const getAll = async (req, res) => {
   const { _id: owner } = req.user;
-  const { page = 1, limit = 10, favorite } = req.query;
+  const { page = 1, limit = 10, ...filters } = req.query;
   const skip = (page - 1) * limit;
-  const filter = favorite ? { owner, favorite } : { owner };
-  const contacts = await Contact.find(filter, "-createdAt -updatedAt", {
-    skip,
-    limit,
-  }).populate("owner", "name email");
+  const contacts = await Contact.find(
+    { owner, ...filters },
+    "-owner -token -createdAt -updatedAt",
+    { skip, limit }
+  );
 
   res.json(contacts);
 };
