@@ -5,6 +5,7 @@ require("dotenv").config();
 
 const contactsRouter = require("./routes/api/contacts");
 const authRouter = require("./routes/api/auth");
+const sendEmail = require("./helpers/sendEmail");
 
 const app = express();
 
@@ -28,3 +29,5 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
+
+sendEmail();
